@@ -30,6 +30,8 @@ must implement the following methods.
 * set_result
 * set_state
 * set_value
+* is_closed
+* __str__ (converts response to JSON string)
 
 The CommandHandler file provides an example of a Response class.
 
@@ -45,4 +47,4 @@ This file shows how to create an instance of the SocketServerThread
 class.
 
 ## References
-1. [Title](url)
+1. [AtHomeDMX Lighting Control Server](http://dhocker.github.io/projects/athomedmx.html)

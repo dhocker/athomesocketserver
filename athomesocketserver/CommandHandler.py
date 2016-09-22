@@ -71,6 +71,11 @@ class CommandHandler:
         def set_state(self, state):
             self._response["state"] = state
 
+        def is_closed(self):
+            if "state" in self._response:
+                return self._response["state"] == "CLOSED"
+            return False
+
         def set_value(self, key, value):
             self._response[key] = value
 
@@ -82,14 +87,18 @@ class CommandHandler:
         Constructor for an instance of CommandHandler
         """
         # Valid commands and their handlers
+        # Note that the command handler MUST implement either a close or quit command.
         self._valid_commands = {
+            "status": self.get_status,
+            "test": self.test_command,
+            "close": self.close_connection,
         }
 
     def execute_command(self, raw_command):
         """
         Execute a client command/request.
         :param raw_command:
-        :return:
+        :return: Returns a response instance
         """
         tokens = raw_command.lower().split()
         if (len(tokens) >= 1) and (tokens[0] in self._valid_commands):
@@ -98,12 +107,46 @@ class CommandHandler:
             else:
                 r = CommandHandler.Response(tokens[0], result=CommandHandler.ERROR_RESPONSE)
                 r.set_value("messages", "Command not implemented")
-                response = str(r)
+                response = r
         else:
             r = CommandHandler.Response(tokens[0], result=CommandHandler.ERROR_RESPONSE)
             r.set_value("messages", "Unrecognized command")
-            response = str(r)
+            response = r
 
         # Return the command generated response with the end of response
         # delimiter tacked on.
         return response
+
+
+    def get_status(self, tokens, command):
+        """
+        Return current status of DMX script engine.
+        :param tokens:
+        :param command:
+        :return:
+        """
+        r = CommandHandler.Response(tokens[0], result=CommandHandler.OK_RESPONSE)
+        return r
+
+    def test_command(self, tokens, command):
+        """
+        An example of a command.
+        :param tokens:
+        :param command:
+        :return:
+        """
+        r = CommandHandler.Response(tokens[0], result=CommandHandler.OK_RESPONSE)
+        r.set_state("Doing nothing")
+        r.set_value("arg1", "value of arg1")
+        r.set_value("message", "This is an example test command")
+        return r
+
+    def close_connection(self, tokens, command):
+        """
+        Close the current connection/session.
+        :param tokens:
+        :param command:
+        :return:
+        """
+        r = CommandHandler.Response(tokens[0], result=CommandHandler.OK_RESPONSE, state="CLOSED")
+        return r

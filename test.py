@@ -28,7 +28,7 @@ HOST, PORT = "0.0.0.0", 5050
 # on its own thread we would not be able to shut it down in
 # an orderly fashion.
 print "Creating a SocketServerThread instance"
-server = SocketServerThread.SocketServerThread(HOST, PORT, CommandHandler)
+server = SocketServerThread.SocketServerThread(HOST, PORT, CommandHandler.CommandHandler)
 print server
 
 # Launch the socket server

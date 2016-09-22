@@ -64,7 +64,7 @@ class TCPRequestHandler(SocketServer.BaseRequestHandler):
                         r = TCPRequestHandler.command_handler_class.Response(raw_command,
                             result=TCPRequestHandler.command_handler_class.ERROR_RESPONSE)
                         r.set_value("message", "No command handler")
-                        response = str(r)
+                        response = r
 
                     print "Request completed"
                 except Exception as ex:
@@ -74,22 +74,24 @@ class TCPRequestHandler(SocketServer.BaseRequestHandler):
                     r = TCPRequestHandler.command_handler_class.Response(raw_command,
                         result=TCPRequestHandler.command_handler_class.ERROR_RESPONSE)
                     r.set_value("message", "ERROR Exception occurred while handling request")
-                    response = str(r)
+                    response = r
                 finally:
                     pass
 
-                if raw_command.startswith("close") or raw_command.startswith("quit"):
-                    connection_open = False
+                # Note that session end is detected by convention. Any command that
+                # starts with close or quit will end the session.
+                # if raw_command.startswith("close") or raw_command.startswith("quit"):
+                connection_open = not response.is_closed()
 
                 TCPRequestHandler.call_sequence += 1
             else:
                 r = TCPRequestHandler.command_handler_class.Response(raw_command,
                                                                      result=TCPRequestHandler.command_handler_class.ERROR_RESPONSE)
                 r.set_value("message", "Empty command ignored")
-                response = str(r)
+                response = r
 
             # Return the response to the client
-            self.request.sendall(response)
+            self.request.sendall(str(response))
 
         print "Socket {0} closed".format(self.client_address[0])
 
