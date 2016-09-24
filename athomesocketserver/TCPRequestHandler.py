@@ -51,7 +51,7 @@ class TCPRequestHandler(SocketServer.BaseRequestHandler):
 
             if raw_command and len(raw_command) > 0:
                 try:
-                    print "Request: {0}".format(raw_command)
+                    print "Request: {0}, on socket: {1}".format(raw_command, self.request.getsockname())
                     raw_command = raw_command.lower()
 
                     # The command handler generates the response
@@ -59,7 +59,7 @@ class TCPRequestHandler(SocketServer.BaseRequestHandler):
                         # Create an instance of the command handler
                         handler = TCPRequestHandler.command_handler_class()
                         # Pass the command string to the command handler
-                        response = handler.execute_command(raw_command)
+                        response = handler.execute_command(self.request.getsockname()[1], raw_command)
                     else:
                         r = TCPRequestHandler.command_handler_class.Response(raw_command,
                             result=TCPRequestHandler.command_handler_class.ERROR_RESPONSE)
