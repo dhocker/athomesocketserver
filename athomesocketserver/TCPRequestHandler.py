@@ -27,14 +27,16 @@ class TCPRequestHandler(SocketServer.BaseRequestHandler):
     command_handler_class = None
 
     @classmethod
-    def set_command_handler_class(cls, command_handler_to_use):
+    def set_command_handler_class(cls, command_handler_to_use, connection_time_out=5.0):
         """
         Command handler injection
         :param command_handler_to_use: A class that implements a
         Response class and an execute_command method.
+        :param connection_time_out:
         :return:
         """
         cls.command_handler_class = command_handler_to_use
+        cls.connection_time_out = connection_time_out
 
     """
     This handler uses raw data from the SocketServer.TCPServer class.
@@ -87,8 +89,13 @@ class TCPRequestHandler(SocketServer.BaseRequestHandler):
             else:
                 r = TCPRequestHandler.command_handler_class.Response(raw_command,
                                                                      result=TCPRequestHandler.command_handler_class.ERROR_RESPONSE)
-                r.set_value("message", "Empty command ignored")
+                if raw_command:
+                    r.set_value("message", "Empty command ignored")
+                else:
+                    r.set_value("message", "Connection timed out")
                 response = r
+                # We consider this an error, so we force close the socket
+                connection_open = False
 
             # Return the response to the client
             self.request.sendall(str(response))
@@ -100,6 +107,8 @@ class TCPRequestHandler(SocketServer.BaseRequestHandler):
         Read a command from a socket
         """
         command = ""
+        # Time out. This will close the connection.
+        self.request.settimeout(TCPRequestHandler.connection_time_out)
 
         try:
             c = self.request.recv(1)

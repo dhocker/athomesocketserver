@@ -20,13 +20,13 @@ import TCPRequestHandler
 # This class should be used as a singleton
 class SocketServerThread:
     # Constructor of an instance to server a given host:port
-    def __init__(self, host, port, handler):
+    def __init__(self, host, port, handler, connection_time_out=5.0):
         self.host = host
         self.port = port
         self.server_thread = threading.Thread(target=self.RunServer)
         ThreadedTCPServer.ThreadedTCPServer.allow_reuse_address = True
         # Inject the command handler class into the request handler
-        TCPRequestHandler.TCPRequestHandler.set_command_handler_class(handler)
+        TCPRequestHandler.TCPRequestHandler.set_command_handler_class(handler, connection_time_out=connection_time_out)
 
         self.server = ThreadedTCPServer.ThreadedTCPServer((host, port), TCPRequestHandler.TCPRequestHandler)
 
