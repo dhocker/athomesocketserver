@@ -32,7 +32,7 @@ def read(*paths):
 
 setup(
     name='athomesocketserver',
-    version='1.0.1',
+    version='1.0.2',
     description='Socket Server Command Line Interface Library',
     long_description=(read('Readme.md')),
     url='www.github.com/dhocker/athomesocketserver',

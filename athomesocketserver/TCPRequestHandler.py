@@ -118,6 +118,7 @@ class TCPRequestHandler(SocketServer.BaseRequestHandler):
                 c = self.request.recv(1)
 
         except Exception as ex:
-            command = None
+            # Treat any error as if it were a close command
+            command = "close"
 
         return command
