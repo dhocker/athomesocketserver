@@ -43,7 +43,7 @@ class TCPRequestHandler(SocketServer.BaseRequestHandler):
     """
 
     def handle(self):
-        print "Connection from {0}".format(self.client_address[0])
+        # print "Connection from {0}".format(self.client_address[0])
 
         # Do until close is received
         connection_open = True
@@ -53,7 +53,7 @@ class TCPRequestHandler(SocketServer.BaseRequestHandler):
 
             if raw_command and len(raw_command) > 0:
                 try:
-                    print "Request: {0}, on socket: {1}".format(raw_command, self.request.getsockname())
+                    # print "Request: {0}, on socket: {1}".format(raw_command, self.request.getsockname())
                     raw_command = raw_command.lower()
 
                     # The command handler generates the response
@@ -68,7 +68,7 @@ class TCPRequestHandler(SocketServer.BaseRequestHandler):
                         r.set_value("message", "No command handler")
                         response = r
 
-                    print "Request completed"
+                    # print "Request completed"
                 except Exception as ex:
                     print "Exception occurred while handling request"
                     print str(ex)
@@ -76,6 +76,7 @@ class TCPRequestHandler(SocketServer.BaseRequestHandler):
                     r = TCPRequestHandler.command_handler_class.Response(raw_command,
                         result=TCPRequestHandler.command_handler_class.ERROR_RESPONSE)
                     r.set_value("message", "ERROR Exception occurred while handling request")
+                    r.set_value("exception", str(ex))
                     response = r
                 finally:
                     pass
@@ -100,7 +101,7 @@ class TCPRequestHandler(SocketServer.BaseRequestHandler):
             # Return the response to the client
             self.request.sendall(str(response))
 
-        print "Socket {0} closed".format(self.client_address[0])
+        # print "Socket {0} closed".format(self.client_address[0])
 
     def read_command(self):
         """
