@@ -1,6 +1,7 @@
+# coding: utf-8
 #
 # AtHomeSocketServer
-# Copyright (C) 2016  Dave Hocker (email: AtHomeX10@gmail.com)
+# Copyright © 2016, 2018  Dave Hocker (email: AtHomeX10@gmail.com)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,8 +16,6 @@
 # along with this program (the LICENSE file).  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os
-import glob
 import json
 from collections import OrderedDict
 

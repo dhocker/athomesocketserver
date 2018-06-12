@@ -1,6 +1,7 @@
+# coding: utf-8
 #
 # AtHomeSocketServer
-# Copyright (C) 2016  Dave Hocker (email: AtHomeX10@gmail.com)
+# Copyright © 2016, 2018  Dave Hocker (email: AtHomeX10@gmail.com)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -9,9 +10,15 @@
 # See the LICENSE file for more details.
 #
 
-import SocketServer
 
-class TCPRequestHandler(SocketServer.BaseRequestHandler):
+import sys
+try:
+    import socketserver as socketserver
+except ImportError:
+    import SocketServer as socketserver
+
+
+class TCPRequestHandler(socketserver.BaseRequestHandler):
     """
     The RequestHandler class for our server.
 
@@ -70,9 +77,9 @@ class TCPRequestHandler(SocketServer.BaseRequestHandler):
 
                     # print "Request completed"
                 except Exception as ex:
-                    print "Exception occurred while handling request"
-                    print str(ex)
-                    print raw_command
+                    print("Exception occurred while handling request")
+                    print(str(ex))
+                    print(raw_command)
                     r = TCPRequestHandler.command_handler_class.Response(raw_command,
                         result=TCPRequestHandler.command_handler_class.ERROR_RESPONSE)
                     r.set_value("message", "ERROR Exception occurred while handling request")
@@ -99,7 +106,7 @@ class TCPRequestHandler(SocketServer.BaseRequestHandler):
                 connection_open = False
 
             # Return the response to the client
-            self.request.sendall(str(response))
+            self.request.sendall(TCPRequestHandler.convert_response(response))
 
         # print "Socket {0} closed".format(self.client_address[0])
 
@@ -112,14 +119,36 @@ class TCPRequestHandler(SocketServer.BaseRequestHandler):
         self.request.settimeout(TCPRequestHandler.connection_time_out)
 
         try:
-            c = self.request.recv(1)
+            c = TCPRequestHandler.convert_str(self.request.recv(1))
             while c != "\n":
                 if c != "\r":
                     command += c
-                c = self.request.recv(1)
+                c = TCPRequestHandler.convert_str(self.request.recv(1))
 
         except Exception as ex:
             # Treat any error as if it were a close command
             command = "close"
 
         return command
+
+    @staticmethod
+    def convert_str(data):
+        """
+        Python 2/3 compatibility for received string data
+        :param data:
+        :return:
+        """
+        if sys.version_info[0] < 3:
+            return data
+        return str(data, "utf-8")
+
+    @staticmethod
+    def convert_response(data):
+        """
+        Python 2/3 compatibility for transmitted string datas
+        :param data:
+        :return:
+        """
+        if sys.version_info[0] < 3:
+            return str(data)
+        return bytes(str(data), "utf-8")
